@@ -29,7 +29,7 @@ public class Game extends ApplicationAdapter {
         world = new World(new Vector2(), true);
         camera = new OrthographicCamera();
         debugRenderer = new Box2DDebugRenderer();
-        tank = new Tank(world, 0, 0, 3, 5);
+        tank = new Tank(world, 0, 0, 4, 5);
         tank.getChasis().setLinearDamping(3);
         tank.getChasis().setAngularDamping(3);
         tank.getTurret().setLinearDamping(3);
@@ -51,14 +51,16 @@ public class Game extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
 
+        batch.draw(background, 0, 0);
+
         tank.update();
+        tank.render(batch);
 
         world.step(timestep, 8, 3);
         camera.position.set(tank.getChasis().getPosition().x, tank.getChasis().getPosition().y, 0);
         camera.update();
 
         batch.setProjectionMatrix(camera.combined);
-        batch.draw(background, 0, 0);
 
         batch.end();
 
