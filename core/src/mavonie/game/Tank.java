@@ -21,7 +21,7 @@ public class Tank extends InputAdapter {
 
     private Body turret, chasis;
 
-    private float acceleration = 20000, leftAcceleration, rightAcceleration;
+    private float acceleration = 60000, leftAcceleration, rightAcceleration;
     private float width, height;
 
     public Tank(World world, float x, float y, float width, float height) {
@@ -47,6 +47,8 @@ public class Tank extends InputAdapter {
 
         shape.setAsBox(width / 2 / 5, height / 3);
         fixdev.density /= 500;
+
+        fixdev.density /= 500;
         turret = world.createBody(bodyDef);
         turret.createFixture(fixdev);
 
@@ -55,7 +57,13 @@ public class Tank extends InputAdapter {
         jointDef.bodyB = turret;
         jointDef.localAnchorB.y = -height / 3; //This is where the cannon rotates from
 
+        jointDef.enableLimit = true;
+        jointDef.upperAngle = 20 * MathUtils.degreesToRadians;
+        jointDef.lowerAngle = -20 * MathUtils.degreesToRadians;
+        jointDef.maxMotorTorque = 1;
+
         joint = (RevoluteJoint) world.createJoint(jointDef);
+
     }
 
     private Vector2 tmp = new Vector2(), tmp2 = new Vector2();
@@ -86,6 +94,18 @@ public class Tank extends InputAdapter {
                 break;
             case Input.Keys.D:
                 rightAcceleration = -acceleration;
+                break;
+
+            //Turret Controls
+            case Input.Keys.W:
+                joint.enableLimit(false);
+                joint.enableMotor(true);
+                joint.setMotorSpeed(-20);
+                break;
+            case Input.Keys.S:
+                joint.enableLimit(false);
+                joint.enableMotor(true);
+                joint.setMotorSpeed(20);
             default:
                 return false;
         }
@@ -96,8 +116,12 @@ public class Tank extends InputAdapter {
     public boolean keyUp(int keycode) {
         if (keycode == Input.Keys.Q || keycode == Input.Keys.A) {
             leftAcceleration = 0;
-        } else {
+        } else if(keycode == Input.Keys.E || keycode == Input.Keys.D) {
             rightAcceleration = 0;
+        } else if(keycode == Input.Keys.W || keycode == Input.Keys.S) {
+            joint.enableLimit(true);
+            joint.enableMotor(false);
+            joint.setLimits(joint.getJointAngle() - 20 * MathUtils.degRad, joint.getJointAngle() + 20 * MathUtils.degRad);
         }
 
         return true;
@@ -105,5 +129,9 @@ public class Tank extends InputAdapter {
 
     public Body getChasis() {
         return chasis;
+    }
+
+    public Body getTurret() {
+        return turret;
     }
 }
