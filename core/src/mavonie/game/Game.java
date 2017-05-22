@@ -10,6 +10,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 
+import mavonie.game.Utils.FrameRate;
+
 public class Game extends ApplicationAdapter {
 
     private SpriteBatch batch;
@@ -21,6 +23,7 @@ public class Game extends ApplicationAdapter {
     private Tank tank;
     private Texture background;
 
+    private FrameRate fps;
     private float timestep = 1 / 60f;
 
     @Override
@@ -36,6 +39,7 @@ public class Game extends ApplicationAdapter {
         tank.getTurret().setAngularDamping(3);
 
         background = new Texture("dirt.png");
+        fps = new FrameRate();
 
         Gdx.input.setInputProcessor(tank);
     }
@@ -64,6 +68,8 @@ public class Game extends ApplicationAdapter {
 
         batch.end();
 
+        fps.render();
+        fps.update();
         debugRenderer.render(world, camera.combined);
     }
 

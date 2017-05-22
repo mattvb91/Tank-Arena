@@ -32,12 +32,13 @@ public class Tank extends InputAdapter {
     private BodyDef bulletBodyDef;
     private FixtureDef bulletFixtureDev;
 
-    private Texture texture, turretTexture;
+    private Texture texture, turretTexture, bulletTexture;
 
     public Tank(World world, float x, float y, float width, float height) {
 
         texture = new Texture("tankBeige.png");
         turretTexture = new Texture("barrelBeige.png");
+        bulletTexture = new Texture("bulletSilverSilver.png");
 
         this.width = width;
         this.height = height;
@@ -121,6 +122,7 @@ public class Tank extends InputAdapter {
         bulletBodyDef.position.set(turret.getWorldPoint(tmp.set(0, height / 3)));
         Body bullet = chasis.getWorld().createBody(bulletBodyDef);
         bullet.createFixture(bulletFixtureDev);
+        bullet.setUserData(new Box2DSprite(bulletTexture));
 
         float rot = (float) (turret.getTransform().getRotation() + Math.PI / 2);
         float x = MathUtils.cos(rot);
