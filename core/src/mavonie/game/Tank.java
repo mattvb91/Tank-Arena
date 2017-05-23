@@ -1,6 +1,8 @@
 package mavonie.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
@@ -35,6 +37,8 @@ public class Tank extends InputAdapter {
 
     private float startingHealth = 100, health = 100;
 
+    private World world;
+
     public Tank(World world, float x, float y, float width, float height) {
 
         texture = new Texture("tankBeige.png");
@@ -43,6 +47,8 @@ public class Tank extends InputAdapter {
         healthBackground = new Texture("healthBackground.png");
         healthForeground = new Texture("healthForeground.png");
         healthBorder = new Texture("healthBorder.png");
+
+        this.world = world;
 
         this.width = width;
         this.height = height;
@@ -137,16 +143,16 @@ public class Tank extends InputAdapter {
      * Create bullet
      */
     public void shoot() {
-        bulletBodyDef.position.set(turret.getWorldPoint(tmp.set(0, height / 2)));
-        Body bullet = chasis.getWorld().createBody(bulletBodyDef);
-        bullet.createFixture(bulletFixtureDev).setUserData(new Box2DSprite(bulletTexture));
-        bullet.setUserData("bullet");
+        Bullet bullet = new Bullet(world, turret);
 
         float rot = (float) (turret.getTransform().getRotation() + Math.PI / 2);
         float x = MathUtils.cos(rot);
         float y = MathUtils.sin(rot);
 
-        bullet.setLinearVelocity(x * 500, y * 500);
+        Sound sound = Gdx.audio.newSound(Gdx.files.internal("sounds/bulletShoot.mp3"));
+        sound.play(1.0f);
+
+        bullet.getBody().setLinearVelocity(x * 500, y * 500);
     }
 
     public Body getChasis() {

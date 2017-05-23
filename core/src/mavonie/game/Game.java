@@ -2,6 +2,7 @@ package mavonie.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
+import box2dLight.RayHandler;
 import mavonie.game.Utils.ContactsListener;
 import mavonie.game.Utils.FrameRate;
 
@@ -24,7 +26,7 @@ public class Game extends ApplicationAdapter {
     private OrthographicCamera camera;
 
     private Array<Body> destroyBodies = new Array<Body>();
-    public static Array<ParticleEffect> effects = new Array<ParticleEffect>();
+    public Array<ParticleEffect> effects = new Array<ParticleEffect>();
     public static Array<Joint> destroyJoints = new Array<Joint>();
 
     private Box2DDebugRenderer debugRenderer;
@@ -36,6 +38,8 @@ public class Game extends ApplicationAdapter {
     private float timestep = 1 / 60f;
 
     private Player player;
+
+    public static RayHandler rayHandler;
 
     @Override
     public void create() {
@@ -53,6 +57,10 @@ public class Game extends ApplicationAdapter {
         background = new Texture("dirt.png");
         fps = new FrameRate();
 
+        rayHandler = new RayHandler(world);
+        rayHandler.setAmbientLight(Color.BLACK);
+        rayHandler.setAmbientLight(1f);
+
         Gdx.input.setInputProcessor(player);
     }
 
@@ -68,7 +76,6 @@ public class Game extends ApplicationAdapter {
         batch.begin();
 
         batch.draw(background, 0, 0);
-
         tank.update();
         tank.render(batch);
 
@@ -103,6 +110,9 @@ public class Game extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
 
         batch.end();
+
+        rayHandler.setCombinedMatrix(camera);
+        rayHandler.updateAndRender();
 
         fps.render();
         fps.update();

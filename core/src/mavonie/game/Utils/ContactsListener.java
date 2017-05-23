@@ -1,13 +1,12 @@
 package mavonie.game.Utils;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Manifold;
 
+import mavonie.game.Bullet;
 import mavonie.game.Game;
 import mavonie.game.Tank;
 
@@ -25,23 +24,13 @@ public class ContactsListener implements ContactListener {
 
     @Override
     public void beginContact(Contact contact) {
+        Body a = contact.getFixtureA().getBody();
         Body b = contact.getFixtureB().getBody();
 
-        if (b.getUserData() == "bullet") {
-
-            ParticleEffect p = new ParticleEffect();
-            p.load(Gdx.files.internal("particles/bulletHit.p"), Gdx.files.internal("particles"));
-            p.start();
-            p.setPosition(b.getPosition().x, b.getPosition().y);
-            p.scaleEffect(0.1f);
-            Game.effects.add(p);
-
-            if (contact.getFixtureA().getBody().getUserData() instanceof Tank) {
-                Tank tank = (Tank) contact.getFixtureA().getBody().getUserData();
-                tank.damage(10);
-            }
-
-            game.destroy(b);
+        if (b.getUserData() instanceof Bullet && a.getUserData() instanceof Tank) {
+            Bullet bullet = (Bullet) b.getUserData();
+            Tank tank = (Tank) a.getUserData();
+            bullet.hit(game, tank);
         }
     }
 
