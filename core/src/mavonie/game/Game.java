@@ -7,9 +7,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 
+import mavonie.game.Utils.ContactsListener;
 import mavonie.game.Utils.FrameRate;
 
 public class Game extends ApplicationAdapter {
@@ -17,6 +20,8 @@ public class Game extends ApplicationAdapter {
     private SpriteBatch batch;
     private World world;
     private OrthographicCamera camera;
+
+    private Array<Body> destroyBodies = new Array<Body>();
 
     private Box2DDebugRenderer debugRenderer;
 
@@ -26,22 +31,25 @@ public class Game extends ApplicationAdapter {
     private FrameRate fps;
     private float timestep = 1 / 60f;
 
+    private Player player;
+
     @Override
     public void create() {
         batch = new SpriteBatch();
+
         world = new World(new Vector2(), true);
+        world.setContactListener(new ContactsListener(this));
+
         camera = new OrthographicCamera();
         debugRenderer = new Box2DDebugRenderer();
         tank = new Tank(world, 0, 0, 4, 5);
-        tank.getChasis().setLinearDamping(3);
-        tank.getChasis().setAngularDamping(3);
-        tank.getTurret().setLinearDamping(3);
-        tank.getTurret().setAngularDamping(3);
+
+        player = new Player(world, 10, 10);
 
         background = new Texture("dirt.png");
         fps = new FrameRate();
 
-        Gdx.input.setInputProcessor(tank);
+        Gdx.input.setInputProcessor(player);
     }
 
     @Override
@@ -60,8 +68,17 @@ public class Game extends ApplicationAdapter {
         tank.update();
         tank.render(batch);
 
+        player.update();
+        player.render(batch);
+
         world.step(timestep, 8, 3);
-        camera.position.set(tank.getChasis().getPosition().x, tank.getChasis().getPosition().y, 0);
+
+        for (Body body : destroyBodies) {
+            world.destroyBody(body);
+        }
+        destroyBodies.clear();
+
+        camera.position.set(player.tank.getChasis().getPosition().x, player.tank.getChasis().getPosition().y, 0);
         camera.update();
 
         batch.setProjectionMatrix(camera.combined);
@@ -78,5 +95,15 @@ public class Game extends ApplicationAdapter {
         batch.dispose();
         world.dispose();
         debugRenderer.dispose();
+    }
+
+    /**
+     * Destroy any bodies passed in
+     * @param body
+     */
+    public void destroy(Body body) {
+        if (!destroyBodies.contains(body, false)) {
+            destroyBodies.add(body);
+        }
     }
 }
