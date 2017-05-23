@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -22,6 +23,7 @@ public class Game extends ApplicationAdapter {
     private OrthographicCamera camera;
 
     private Array<Body> destroyBodies = new Array<Body>();
+    public static Array<ParticleEffect> effects = new Array<ParticleEffect>();
 
     private Box2DDebugRenderer debugRenderer;
 
@@ -54,8 +56,8 @@ public class Game extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) {
-        camera.viewportWidth = width / 20;
-        camera.viewportHeight = height / 20;
+        camera.viewportWidth = width / 14;
+        camera.viewportHeight = height / 14;
     }
 
     @Override
@@ -73,10 +75,19 @@ public class Game extends ApplicationAdapter {
 
         world.step(timestep, 8, 3);
 
+        //Clean up bodies
         for (Body body : destroyBodies) {
             world.destroyBody(body);
+            destroyBodies.removeValue(body, true);
         }
-        destroyBodies.clear();
+
+        for (ParticleEffect p : effects) {
+            p.draw(batch, Gdx.graphics.getDeltaTime());
+            if (p.isComplete()) {
+                p.dispose();
+                effects.removeValue(p, true);
+            }
+        }
 
         camera.position.set(player.tank.getChasis().getPosition().x, player.tank.getChasis().getPosition().y, 0);
         camera.update();
@@ -99,6 +110,7 @@ public class Game extends ApplicationAdapter {
 
     /**
      * Destroy any bodies passed in
+     *
      * @param body
      */
     public void destroy(Body body) {

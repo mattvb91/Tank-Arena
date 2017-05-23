@@ -56,7 +56,7 @@ public class Tank extends InputAdapter {
         fixdev.friction = .5f;
 
         chasis = world.createBody(bodyDef);
-        chasis.createFixture(fixdev);
+        chasis.createFixture(fixdev).setUserData(new Box2DSprite(texture));
 
         //Turret
         shape.setAsBox(width / 2 / 5, height / 3);
@@ -125,7 +125,7 @@ public class Tank extends InputAdapter {
     public void shoot() {
         bulletBodyDef.position.set(turret.getWorldPoint(tmp.set(0, height / 2)));
         Body bullet = chasis.getWorld().createBody(bulletBodyDef);
-        bullet.createFixture(bulletFixtureDev);
+        bullet.createFixture(bulletFixtureDev).setUserData(new Box2DSprite(bulletTexture));
         bullet.setUserData("bullet");
 
         float rot = (float) (turret.getTransform().getRotation() + Math.PI / 2);
