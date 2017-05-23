@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
@@ -24,6 +25,7 @@ public class Game extends ApplicationAdapter {
 
     private Array<Body> destroyBodies = new Array<Body>();
     public static Array<ParticleEffect> effects = new Array<ParticleEffect>();
+    public static Array<Joint> destroyJoints = new Array<Joint>();
 
     private Box2DDebugRenderer debugRenderer;
 
@@ -79,6 +81,12 @@ public class Game extends ApplicationAdapter {
         for (Body body : destroyBodies) {
             world.destroyBody(body);
             destroyBodies.removeValue(body, true);
+        }
+
+        //Clean up bodies
+        for (Joint joint : destroyJoints) {
+            world.destroyJoint(joint);
+            destroyJoints.removeValue(joint, true);
         }
 
         for (ParticleEffect p : effects) {

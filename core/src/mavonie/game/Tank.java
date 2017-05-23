@@ -21,7 +21,7 @@ import net.dermetfan.gdx.graphics.g2d.Box2DSprite;
  */
 public class Tank extends InputAdapter {
 
-    protected final RevoluteJoint joint;
+    protected RevoluteJoint joint;
 
     private Body turret, chasis;
 
@@ -31,13 +31,18 @@ public class Tank extends InputAdapter {
     private BodyDef bulletBodyDef;
     private FixtureDef bulletFixtureDev;
 
-    private Texture texture, turretTexture, bulletTexture;
+    private Texture texture, turretTexture, bulletTexture, healthBackground, healthForeground, healthBorder;
+
+    private float startingHealth = 100, health = 100;
 
     public Tank(World world, float x, float y, float width, float height) {
 
         texture = new Texture("tankBeige.png");
         turretTexture = new Texture("barrelBeige.png");
         bulletTexture = new Texture("bulletSilverSilver.png");
+        healthBackground = new Texture("healthBackground.png");
+        healthForeground = new Texture("healthForeground.png");
+        healthBorder = new Texture("healthBorder.png");
 
         this.width = width;
         this.height = height;
@@ -64,7 +69,7 @@ public class Tank extends InputAdapter {
 
         fixdev.density /= 500;
         turret = world.createBody(bodyDef);
-        turret.createFixture(fixdev);
+        turret.createFixture(fixdev).setUserData(new Box2DSprite(turretTexture));
 
         RevoluteJointDef jointDef = new RevoluteJointDef();
         jointDef.bodyA = chasis;
@@ -92,8 +97,8 @@ public class Tank extends InputAdapter {
 
         bulletFixtureDev = fixdev;
 
-        chasis.setUserData("tank");
-        turret.setUserData(new Box2DSprite(turretTexture));
+        chasis.setUserData(this);
+        turret.setUserData(this);
 
         chasis.setLinearDamping(3);
         chasis.setAngularDamping(3);
@@ -117,6 +122,15 @@ public class Tank extends InputAdapter {
 
     public void render(SpriteBatch batch) {
         Box2DSprite.draw(batch, chasis.getWorld());
+
+        float x = chasis.getPosition().x - width;
+        float y = chasis.getPosition().y + height;
+
+        float healthPercentage = health / startingHealth;
+
+        batch.draw(healthBackground, x, y, 7f, 1f);
+        batch.draw(healthForeground, x, y, Math.max(7f * healthPercentage, 0), 1f);
+        batch.draw(healthBorder, x, y, 7f, 1f);
     }
 
     /**
@@ -141,5 +155,15 @@ public class Tank extends InputAdapter {
 
     public Body getTurret() {
         return turret;
+    }
+
+    public void damage(float i) {
+        health -= i;
+
+        if (health <= 0 && joint != null) {
+            Game.destroyJoints.add(joint);
+            turret.applyForce(10f, 10f, 10f, 10f, true);
+            joint = null;
+        }
     }
 }

@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Manifold;
 
 import mavonie.game.Game;
+import mavonie.game.Tank;
 
 
 /**
@@ -34,6 +35,11 @@ public class ContactsListener implements ContactListener {
             p.setPosition(b.getPosition().x, b.getPosition().y);
             p.scaleEffect(0.1f);
             Game.effects.add(p);
+
+            if (contact.getFixtureA().getBody().getUserData() instanceof Tank) {
+                Tank tank = (Tank) contact.getFixtureA().getBody().getUserData();
+                tank.damage(10);
+            }
 
             game.destroy(b);
         }
